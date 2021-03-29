@@ -22,13 +22,18 @@ export default [
             path: '/admin',
             name: 'admin',
             icon: 'crown',
-            component: './Admin',
             routes: [
               {
                 path: '/admin/sub-page',
                 name: 'sub-page',
                 icon: 'smile',
-                component: './Welcome',
+                component: './Admin',
+              },
+              {
+                path: '/admin/sub-page2',
+                name: 'sub-page2',
+                icon: 'smile',
+                component: './Test',
               },
             ],
           },

@@ -36,7 +36,7 @@ export default {
             icon: 'icon-cloudy-2-fill',
             children: [
               {
-                path: '/admin/sub-page',
+                path: '/admin/sub-page2',
                 name: '三级页面',
               }
             ]

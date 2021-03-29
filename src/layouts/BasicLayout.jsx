@@ -138,15 +138,8 @@ const BasicLayout = (props) => {
         payload,
       });
     }
-  }; // get children authority
-
-  const authorized = useMemo(
-    () =>
-      getMatchMenu(location.pathname || '/', menuDataRef.current).pop() || {
-        authority: undefined,
-      },
-    [location.pathname],
-  );
+  }; 
+  
   const {} = useIntl();
   return (
     <ProLayout
