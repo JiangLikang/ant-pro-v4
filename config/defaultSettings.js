@@ -1,7 +1,7 @@
 const Settings = {
   navTheme: 'dark',
-  layout: 'mix',
-  splitMenus: true,//mix模式下一定要加这个选项
+  layout: 'side',
+  // splitMenus: true,//mix模式下一定要加这个选项
   // 拂晓蓝
   primaryColor: '#1890ff',
   contentWidth: 'Fluid',

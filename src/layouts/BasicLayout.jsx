@@ -3,43 +3,17 @@
  * You can view component api by:
  * https://github.com/ant-design/ant-design-pro-layout
  */
-import ProLayout, { DefaultFooter } from '@ant-design/pro-layout';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useIntl, connect, history } from 'umi';
-import { GithubOutlined } from '@ant-design/icons';
-import { Result, Button } from 'antd';
+import ProLayout from '@ant-design/pro-layout';
+import React, { useEffect, useRef, useState } from 'react';
+import { useIntl, connect, history } from 'umi';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import { getMatchMenu } from '@umijs/route-utils';
 import logo from '../assets/logo.svg';
 import defaultSettings from '../../config/defaultSettings';
 import LocalMenuConfig from '../../config/routes'
 import IconFont from '@/components/MyIcon';
 
-const noMatch = (
-  <Result
-    status={403}
-    title="403"
-    subTitle="Sorry, you are not authorized to access this page."
-    extra={
-      <Button type="primary">
-        <Link to="/user/login">Go Login</Link>
-      </Button>
-    }
-  />
-);
-
-const NoFoundPage = (
-  <Result
-    status="404"
-    title="404"
-    subTitle="Sorry, the page you visited does not exist."
-    extra={
-      <Button type="primary" onClick={() => history.push('/')}>
-        Back Home
-      </Button>
-    }
-  />
-) 
+import noMatch from './403'
+import NoFoundPage from './404'
 
 const menuDataRender = (menuList) =>
   menuList.map((item) => {
@@ -50,31 +24,29 @@ const menuDataRender = (menuList) =>
     return localItem;
   });
 
-const defaultFooterDom = (
-  <DefaultFooter
-    copyright={`${new Date().getFullYear()} 蚂蚁集团体验技术部出品`}
-    links={[
-      {
-        key: 'Ant Design Pro',
-        title: 'Ant Design Pro',
-        href: 'https://pro.ant.design',
-        blankTarget: true,
-      },
-      {
-        key: 'github',
-        title: <GithubOutlined />,
-        href: 'https://github.com/ant-design/ant-design-pro',
-        blankTarget: true,
-      },
-      {
-        key: 'Ant Design',
-        title: 'Ant Design',
-        href: 'https://ant.design',
-        blankTarget: true,
-      },
-    ]}
-  />
-);
+const getOpenKeys = (key, menus=[]) => {
+  let menuArr = [];
+  let roots = menus.map(v => {
+    return { path: v.path };
+  });
+  function trval(data, parent = []) {
+    data.forEach(v => {
+      if (roots.includes({ path: v.path })) {
+        parent = [];
+      }
+      let cloneParent = [...parent];
+      cloneParent.push({ path: v.path });
+
+      if (v.children && v.children.length > 0) {
+        trval(v.children, cloneParent);
+      } else {
+          menuArr.push(cloneParent.map(v => v.path));
+      }
+    });
+  }
+  trval(menus)
+  return menuArr.find(v => v.includes(key))
+}
 
 const BasicLayout = (props) => {
   const {
@@ -88,15 +60,41 @@ const BasicLayout = (props) => {
   } = props;
   const menuDataRef = useRef([]);
   const [isAuth, setIsAuth] = useState(404)
-
-  useEffect(() => {
-    setIsAuth(matchMenu(location.pathname||'/'))
-  }, [location.pathname]);
+  const [menuProps, setMenuProps] = useState({})
+  const [pathArr, setPathArr] = useState(getOpenKeys('/iframe/'+window.location.href.split('/iframe/')[1], menu)||[])
   
+  useEffect(() => {
+    let pathname = window.location.href.split('#')[1].split('?')[0]
+    if (pathname.indexOf('/iframe/')>-1) {
+      setMenuProps(
+        pathArr.length > 1 ? {
+          selectedKeys: [pathname],
+          openKeys: pathArr,
+          onOpenChange: keys => {
+            setPathArr(keys)
+            setMenuProps(menuProps => (
+              {
+                ...menuProps,
+                openKeys: keys
+              }
+            ))
+          }
+        }:{ selectedKeys: [pathname] }
+      )
+    } else {
+      setMenuProps({})
+    }
+    setIsAuth(matchMenu(pathname||'/'))
+  }, [location.pathname]);
+
   const matchMenu = path => {
     let isMatchLocal = false
     let isMatchRemote = false
     function matchLocal(tree,path) {
+      if (path.indexOf('/iframe/')>-1) {
+        isMatchLocal=true
+        return
+      }
       tree.map(item => {
         if (item?.path?.indexOf(path)>-1) {
           isMatchLocal = true
@@ -107,6 +105,10 @@ const BasicLayout = (props) => {
       })
     }
     function matchRemote(tree,path) {
+      if (path.indexOf('/iframe/')>-1) {
+        isMatchRemote=true
+        return
+      }
       tree.map(item => {
         if (item?.path?.indexOf(path)>-1) {
           isMatchRemote = true
@@ -141,6 +143,7 @@ const BasicLayout = (props) => {
   }; 
   
   const {} = useIntl();
+
   return (
     <ProLayout
       logo={logo}
@@ -159,11 +162,14 @@ const BasicLayout = (props) => {
         // 外链
         if (menuItemProps.path.indexOf('http') > -1) {
           // 内嵌外链
-          if (menuItemProps.path.indexOf('target') > -1) {
+          if (menuItemProps.path.indexOf('/iframe/') > -1) {
             return (
               <a
                 className="my-menu-item-link"
-                onClick={() => history.push(menuItemProps.path)}
+                onClick={e => {
+                  e.preventDefault()
+                  history.push(menuItemProps.path)
+                }}
               >
                 {menuItemProps.icon ? <IconFont type={menuItemProps.icon} /> : null}
                 <span>{menuItemProps.name}</span>
@@ -193,6 +199,7 @@ const BasicLayout = (props) => {
           </a>
         );
       }}
+      menuProps={menuProps}
       // breadcrumbRender={(routers = []) => [
       //   {
       //     path: '/',
@@ -219,9 +226,7 @@ const BasicLayout = (props) => {
         return menuData || [];
       }}
     >
-      {/* <Authorized authority={authorized.authority} noMatch={noMatch}> */}
-        { !defaultSettings?.menu?.remote ? children : isAuth === 200 ? children : isAuth === 403 ? noMatch : NoFoundPage}
-      {/* </Authorized> */}
+      { !defaultSettings?.menu?.remote ? children : isAuth === 200 ? children : isAuth === 403 ? noMatch : NoFoundPage}
     </ProLayout>
   );
 };

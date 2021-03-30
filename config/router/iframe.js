@@ -1,5 +1,5 @@
 export default {
-  path: '/iframe',
+  path: '/iframe/:webAddress',
   name: '外链',
-  component: './iframe/',
+  component: './iframe/$webAddress.js',
 };

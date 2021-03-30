@@ -17,10 +17,10 @@ export default {
           },
         ],
       },
-      // {
-      //   path: '/welcome',
-      //   name: '欢迎',
-      // },
+      {
+        path: '/welcome',
+        name: '欢迎',
+      },
       {
         path: '/admin',
         name: '用户管理',
@@ -33,6 +33,7 @@ export default {
           },
           {
             name: '二级目录',
+            path: '/admin-sub',
             icon: 'icon-cloudy-2-fill',
             children: [
               {
@@ -41,6 +42,10 @@ export default {
               }
             ]
           },
+          {
+            name: '腾讯',
+            path: '/iframe/http-www.qq.com?id=2'
+          }
         ],
       },
       {
@@ -49,7 +54,7 @@ export default {
       },
       {
         name: '百度',
-        path: '/iframe?target=http://www.baidu.com?id=1',
+        path: '/iframe/http-www.baidu.com?id=1',
       },
       {
         name: '网易',
