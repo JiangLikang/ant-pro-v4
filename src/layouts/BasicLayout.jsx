@@ -66,6 +66,7 @@ const BasicLayout = (props) => {
   useEffect(() => {
     let pathname = window.location.href.split('#')[1].split('?')[0]
     if (pathname.indexOf('/iframe/')>-1) {
+      let pathArr = getOpenKeys('/iframe/'+window.location.href.split('/iframe/')[1], menu)
       setMenuProps(
         pathArr.length > 1 ? {
           selectedKeys: [pathname],
