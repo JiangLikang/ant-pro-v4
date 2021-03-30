@@ -83,7 +83,18 @@ const BasicLayout = (props) => {
         }:{ selectedKeys: [pathname] }
       )
     } else {
-      setMenuProps({})
+      let pathArr = getOpenKeys(pathname, menu)
+      setMenuProps({
+        openKeys: pathArr,
+        onOpenChange: keys => {
+          setMenuProps(menuProps => (
+            {
+              ...menuProps,
+              openKeys: keys
+            }
+          ))
+        }
+      })
     }
     setIsAuth(matchMenu(pathname||'/'))
   }, [location.pathname]);
