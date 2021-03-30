@@ -68,7 +68,7 @@ const BasicLayout = (props) => {
     if (pathname.indexOf('/iframe/')>-1) {
       let pathArr = getOpenKeys('/iframe/'+window.location.href.split('/iframe/')[1], menu)
       setMenuProps(
-        pathArr.length > 1 ? {
+        {
           selectedKeys: [pathname],
           openKeys: pathArr,
           onOpenChange: keys => {
@@ -80,7 +80,7 @@ const BasicLayout = (props) => {
               }
             ))
           }
-        }:{ selectedKeys: [pathname] }
+        }
       )
     } else {
       let pathArr = getOpenKeys(pathname, menu)
